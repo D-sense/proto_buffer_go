@@ -90,7 +90,10 @@ func writeAddressToFile(fileName string, pb proto.Message) error {
 }
 
 func PersonAddressJSON(pb proto.Message) {
-	smAsString := FromProtoToJson(pb)
+	smAsString, err := FromProtoToJson(pb)
+	if err != nil {
+		log.Fatal("Could not unmarshal the json: ", err)
+	}
 	fmt.Println(smAsString)
 
 	sm2 := &personpb.AddressBook{}
@@ -98,20 +101,20 @@ func PersonAddressJSON(pb proto.Message) {
 	fmt.Println("Successfully created proto struct:", sm2)
 }
 
-func FromJsonToProto(in string, pb proto.Message){
+func FromJsonToProto(in string, pb proto.Message) error {
 	err := jsonpb.UnmarshalString(in, pb)
 	if  err != nil {
-		log.Fatal("Could not unmarshal the json", err)
+		return err
 	}
+	return nil
 }
 
-func FromProtoToJson(pb proto.Message) string {
+func FromProtoToJson(pb proto.Message) (string, error) {
 	marshal := jsonpb.Marshaler{}
 	out, err := marshal.MarshalToString(pb)
 	if  err != nil {
-		log.Fatal("Could not convert to JSON", err)
-		return ""
+		return "", err
 	}
 
-	return out
+	return out, nil
 }
